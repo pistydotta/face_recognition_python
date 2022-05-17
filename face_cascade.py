@@ -1,6 +1,7 @@
 from __future__ import print_function
 import cv2 as cv
 import argparse
+import time
 def detectAndDisplay(frame):
     eyes_qnt = 0
     frame_gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
@@ -16,7 +17,7 @@ def detectAndDisplay(frame):
     # cv.imshow('Capture - Face detection', frame)
 
 
-
+start = time.time()
 face_cascade_name = "./utils/haarcascade_frontalface_alt.xml"
 eyes_cascade_name = "./utils/haarcascade_eye_tree_eyeglasses.xml"
 face_cascade = cv.CascadeClassifier()
@@ -30,6 +31,9 @@ if not eyes_cascade.load(cv.samples.findFile(eyes_cascade_name)):
     exit(0)     
 img = cv.imread("faces.jpg")
 #-- 2. Read the video stream
+
 faces, eyes = detectAndDisplay(img)
+end = time.time()
 print(len(faces))
 print(eyes)
+print("The time of execution of above program is :", end-start)
