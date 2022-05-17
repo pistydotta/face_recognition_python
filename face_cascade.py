@@ -17,8 +17,8 @@ def detectAndDisplay(frame):
 
 
 
-face_cascade_name = "/home/dotta/opencv/data/haarcascades/haarcascade_frontalface_alt.xml"
-eyes_cascade_name = "/home/dotta/opencv/data/haarcascades/haarcascade_eye_tree_eyeglasses.xml"
+face_cascade_name = "./utils/haarcascade_frontalface_alt.xml"
+eyes_cascade_name = "./utils/haarcascade_eye_tree_eyeglasses.xml"
 face_cascade = cv.CascadeClassifier()
 eyes_cascade = cv.CascadeClassifier()
 #-- 1. Load the cascades
