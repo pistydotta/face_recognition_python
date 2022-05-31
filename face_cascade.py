@@ -13,6 +13,9 @@ def getTargetImages(images_path):
     workingImages = images[0:int(image_qnt)]
     return workingImages
 
+def uploadResultToAws():
+    print("asd")
+
 def detectAndDisplay(image_list, images_path, s3, bucket_name, s3_path):
     tmp = []
     for image in image_list:
