@@ -59,7 +59,7 @@ if not eyes_cascade.load(cv.samples.findFile(eyes_cascade_name)):
     print('--(!)Error loading eyes cascade')
     exit(0)     
 # img = cv.imread("faces.jpg")
-images_path = "/home/dotta/dev/images/"
+images_path = os.path.expanduser("~/dev/images/")
 image_list = getTargetImages(images_path)
 s3_client = boto3.resource('s3')
 bucket_name = "opencv-pistydotta"
