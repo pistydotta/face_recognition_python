@@ -62,6 +62,8 @@ def detectAndDisplay(image_list, images_path):
         result_list.append(image + "\n" + str(start) + "\n" + str(end) + "\n" + str(end-start) + "\n")
     return result_list
     
+def cleanUpResults():
+    print("Cleaning")
 
 
 timestamp1 = time.time()
@@ -77,6 +79,7 @@ timestamp3 = time.time()
 s3_path = "results/local/10/"
 uploadResultToAws(s3_path)
 timestamp4 = time.time()
+cleanUpResults()
 # print("The time of execution of above program is :", end-start)
 print("Images were processed in: " + str(timestamp2 - timestamp1))
 print("Images where sent to txt files in: " + str(timestamp3 - timestamp2))
