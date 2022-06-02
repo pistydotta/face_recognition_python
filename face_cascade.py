@@ -5,6 +5,18 @@ import sys
 import cv2 as cv
 import time
 import boto3
+from numpy import eye
+
+def loadCascadeXmls(face_cascade_path, eyes_cascade_path):
+    face_cascade = cv.CascadeClassifier()
+    eyes_cascade = cv.CascadeClassifier()
+    if not face_cascade.load(cv.samples.findFile(face_cascade_path)) or not eyes_cascade.load(cv.samples.findFile(eyes_cascade_path)):
+        print('--(!)Error loading face or eye cascade')
+        exit(0)
+    # if not eyes_cascade.load(cv.samples.findFile(eyes_cascade_name)):
+    #     print('--(!)Error loading eyes cascade')
+    #     exit(0)     
+    return face_cascade, eyes_cascade
 
 def getTargetImages(images_path):
     image_qnt = sys.argv[1]
@@ -13,11 +25,28 @@ def getTargetImages(images_path):
     workingImages = images[0:int(image_qnt)]
     return workingImages
 
-def uploadResultToAws():
-    print("asd")
+def saveResultsToFile(result_list):
+    if (sys.argv[2] == "single"):
+        for result in result_list:
+            fileName = result.split('\n')[0]
+            with open(f"./results/{fileName}.txt", 'w') as f:
+                f.write(result)
+    else:
+        fileName = "results_imagem.txt"
+        with open(f"./results/{fileName}", 'w') as f:
+            for result in result_list:
+                f.write(result)
+    
 
-def detectAndDisplay(image_list, images_path, s3, bucket_name, s3_path):
-    tmp = []
+def uploadResultToAws(s3_path):
+    s3 = boto3.resource('s3')
+    bucket_name = "opencv-pistydotta"
+    files = os.listdir('./results')
+    for file in files:
+        s3.Bucket(bucket_name).upload_file("./results/" + file, f"{s3_path}{file}")
+
+def detectAndDisplay(image_list, images_path):
+    result_list = []
     for image in image_list:
         start = time.time()
         img = cv.imread(f"{images_path}{image}")
@@ -30,45 +59,25 @@ def detectAndDisplay(image_list, images_path, s3, bucket_name, s3_path):
             eyes = eyes_cascade.detectMultiScale(faceROI)
             eyes_qnt += len(eyes)
         end = time.time()
-        exec_time = end - start
-        # fileName = f"{image}_{end}_.txt"
-        # print(fileName)
-        # with open(f"./results/{fileName}", 'w') as f:
-            # f.write("a")
-            # f.write(f"{image} took {str(exec_time)} to execute\nThere was {str(len(faces))} faces and {str(eyes_qnt)} eyes on the image")
-        tmp.append(f"{image} took {str(exec_time)} to execute\nThere was {str(len(faces))} faces and {str(eyes_qnt)} eyes on the image\n")
-    fileName = "results_imagem.txt"
-    with open(f"./results/{fileName}", 'w') as f:
-        for text in tmp:
-            f.write(text)
-    s3.Bucket(bucket_name).upload_file("./results/" + fileName, f"{s3_path}{fileName}")
-        # print(len(faces))
-        # print(eyes_qnt)
+        result_list.append(image + "\n" + str(start) + "\n" + str(end) + "\n" + str(end-start) + "\n")
+    return result_list
+    
 
 
-
-start = time.time()
-face_cascade_name = "./utils/haarcascade_frontalface_alt.xml"
-eyes_cascade_name = "./utils/haarcascade_eye_tree_eyeglasses.xml"
-face_cascade = cv.CascadeClassifier()
-eyes_cascade = cv.CascadeClassifier()
-if not face_cascade.load(cv.samples.findFile(face_cascade_name)):
-    print('--(!)Error loading face cascade')
-    exit(0)
-if not eyes_cascade.load(cv.samples.findFile(eyes_cascade_name)):
-    print('--(!)Error loading eyes cascade')
-    exit(0)     
-# img = cv.imread("faces.jpg")
+timestamp1 = time.time()
+face_cascade_path = "./utils/haarcascade_frontalface_alt.xml"
+eyes_cascade_path = "./utils/haarcascade_eye_tree_eyeglasses.xml"
+face_cascade, eyes_cascade = loadCascadeXmls(face_cascade_path, eyes_cascade_path)
 images_path = os.path.expanduser("~/dev/images/")
 image_list = getTargetImages(images_path)
-s3_client = boto3.resource('s3')
-bucket_name = "opencv-pistydotta"
-s3_path = "results/local/999/"
-detectAndDisplay(image_list, images_path, s3_client, bucket_name, s3_path)
-end = time.time()
-print("The time of execution of above program is :", end-start)
-# with open('image1' + str(time.time()) + '.txt', 'w') as f:
-#     f.write(str(end-start) + '\ntestando barra n')
-# string_teste = "images/penis/image.png"
-# imageName = string_teste.split('/')[len(string_teste.split('/'))-1]
-# print(imageName)
+result_list = detectAndDisplay(image_list, images_path)
+timestamp2 = time.time()
+saveResultsToFile(result_list)
+timestamp3 = time.time()
+s3_path = "results/local/10/"
+uploadResultToAws(s3_path)
+timestamp4 = time.time()
+# print("The time of execution of above program is :", end-start)
+print("Images were processed in: " + str(timestamp2 - timestamp1))
+print("Images where sent to txt files in: " + str(timestamp3 - timestamp2))
+print("Time it took to send results to amazon: " + str(timestamp4 - timestamp3))
