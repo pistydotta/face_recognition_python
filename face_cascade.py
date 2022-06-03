@@ -63,8 +63,10 @@ def detectAndDisplay(image_list, images_path):
     return result_list
     
 def cleanUpResults():
-    print("Cleaning")
-
+    folder = "./results"
+    for filename in os.listdir(folder):
+        file_path = os.path.join(folder, filename)
+        os.remove(file_path)
 
 timestamp1 = time.time()
 face_cascade_path = "./utils/haarcascade_frontalface_alt.xml"
