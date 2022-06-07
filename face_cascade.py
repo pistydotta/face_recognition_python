@@ -12,10 +12,7 @@ def loadCascadeXmls(face_cascade_path, eyes_cascade_path):
     eyes_cascade = cv.CascadeClassifier()
     if not face_cascade.load(cv.samples.findFile(face_cascade_path)) or not eyes_cascade.load(cv.samples.findFile(eyes_cascade_path)):
         print('--(!)Error loading face or eye cascade')
-        exit(0)
-    # if not eyes_cascade.load(cv.samples.findFile(eyes_cascade_name)):
-    #     print('--(!)Error loading eyes cascade')
-    #     exit(0)     
+        exit(0)   
     return face_cascade, eyes_cascade
 
 def getTargetImages(images_path):
@@ -68,6 +65,9 @@ def cleanUpResults():
         file_path = os.path.join(folder, filename)
         os.remove(file_path)
 
+        
+#To run the application use: python3 face-cascade.py images_qnt upload_mode
+# (single = results have their own file, else, all results go in just one file)
 timestamp1 = time.time()
 face_cascade_path = "./utils/haarcascade_frontalface_alt.xml"
 eyes_cascade_path = "./utils/haarcascade_eye_tree_eyeglasses.xml"
@@ -78,7 +78,7 @@ result_list = detectAndDisplay(image_list, images_path)
 timestamp2 = time.time()
 saveResultsToFile(result_list)
 timestamp3 = time.time()
-s3_path = "results/local/10/"
+s3_path = "results/local/11/"
 uploadResultToAws(s3_path)
 timestamp4 = time.time()
 cleanUpResults()
