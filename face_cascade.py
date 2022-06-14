@@ -67,7 +67,8 @@ def cleanUpResults():
 
         
 #To run the application use: python3 face-cascade.py images_qnt upload_mode
-# (single = results have their own file, else, all results go in just one file)
+# upload_mode: (single = results have their own file, else, all results go in just one file)
+#If you wouldn't like the results folder to get deleted, comment the function cleanUpResults()
 timestamp1 = time.time()
 face_cascade_path = "./utils/haarcascade_frontalface_alt.xml"
 eyes_cascade_path = "./utils/haarcascade_eye_tree_eyeglasses.xml"
@@ -84,5 +85,4 @@ timestamp4 = time.time()
 cleanUpResults()
 # print("The time of execution of above program is :", end-start)
 print("Images were processed in: " + str(timestamp2 - timestamp1))
-print("Images where sent to txt files in: " + str(timestamp3 - timestamp2))
 print("Time it took to send results to amazon: " + str(timestamp4 - timestamp3))
