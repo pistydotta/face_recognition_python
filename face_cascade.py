@@ -6,6 +6,7 @@ import cv2 as cv
 import time
 import boto3
 from numpy import eye
+import threading
 
 def loadCascadeXmls(face_cascade_path, eyes_cascade_path):
     face_cascade = cv.CascadeClassifier()
@@ -42,11 +43,11 @@ def uploadResultToAws(s3_path):
     for file in files:
         s3.Bucket(bucket_name).upload_file("./results/" + file, f"{s3_path}{file}")
 
-def detectAndDisplay(image_list, images_path):
+def detectAndDisplay(image_list, images_path, i, j):
     result_list = []
-    for image in image_list:
+    for i in range(j):
         start = time.time()
-        img = cv.imread(f"{images_path}{image}")
+        img = cv.imread(f"{images_path}{image_list[i]}")
         gray_img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
         gray_img = cv.equalizeHist(gray_img)
         faces = face_cascade.detectMultiScale(gray_img)
@@ -56,9 +57,9 @@ def detectAndDisplay(image_list, images_path):
             eyes = eyes_cascade.detectMultiScale(faceROI)
             eyes_qnt += len(eyes)
         end = time.time()
-        result_list.append(image + "\n" + str(start) + "\n" + str(end) + "\n" + str(end-start) + "\n")
+        result_list.append(image_list[i] + "\n" + str(start) + "\n" + str(end) + "\n" + str(end-start) + "\n")
     return result_list
-    
+    thread.start_new_thread(detectAndDisplay, (image_list, images_path, 0, 4))
 def cleanUpResults():
     folder = "./results"
     for filename in os.listdir(folder):
@@ -75,14 +76,30 @@ eyes_cascade_path = "./utils/haarcascade_eye_tree_eyeglasses.xml"
 face_cascade, eyes_cascade = loadCascadeXmls(face_cascade_path, eyes_cascade_path)
 images_path = os.path.expanduser("~/dev/images/")
 image_list = getTargetImages(images_path)
-result_list = detectAndDisplay(image_list, images_path)
+print(image_list)
+#exit(0)
+#t1 = threading.Thread(target=detectAndDisplay, args=(image_list, images_path, 0, 5))
+#t2 = threading.Thread(target=detectAndDisplay, args=(image_list, images_path, 6, 10))
+#t3 = threading.Thread(target=detectAndDisplay, args=(image_list, images_path, 11, 15))
+#t4 = threading.Thread(target=detectAndDisplay, args=(image_list, images_path, 16, 20))
+#t1.start()
+#t2.start()
+#t3.start()
+#t4.start()
+#t1.join()
+#t2.join()
+#t3.join()
+#t4.join()
+#print(t1)
+#print(t2)
+result_list = detectAndDisplay(image_list, images_path, 0, 20)
 timestamp2 = time.time()
-saveResultsToFile(result_list)
+#saveResultsToFile(result_list)
 timestamp3 = time.time()
 s3_path = "results/local/11/"
-uploadResultToAws(s3_path)
+#uploadResultToAws(s3_path)
 timestamp4 = time.time()
-cleanUpResults()
+#cleanUpResults()
 # print("The time of execution of above program is :", end-start)
 print("Images were processed in: " + str(timestamp2 - timestamp1))
 print("Time it took to send results to amazon: " + str(timestamp4 - timestamp3))
