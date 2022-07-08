@@ -69,7 +69,7 @@ def cleanUpResults():
 #To run the application use: python3 face-cascade.py images_qnt upload_mode
 # upload_mode: (single = results have their own file, else, all results go in just one file)
 #If you wouldn't like the results folder to get deleted, comment the function cleanUpResults()
-for i in range(10):    
+for i in range(3):    
     timestamp1 = time.time()
     face_cascade_path = "./utils/haarcascade_frontalface_alt.xml"
     eyes_cascade_path = "./utils/haarcascade_eye_tree_eyeglasses.xml"
@@ -80,10 +80,11 @@ for i in range(10):
     timestamp2 = time.time()
     saveResultsToFile(result_list)
     timestamp3 = time.time()
-    s3_path = "results/local/" + sys.argv[1] + "/" + sys.argv[2] + "/" + str(i) + "/"
+    s3_path = "results/local/energyCollection/" + sys.argv[1] + "/" + sys.argv[2] + "/" + str(i) + "/"
     uploadResultToAws(s3_path)
     timestamp4 = time.time()
-    print(str(timestamp2-timestamp1) + " " + str(timestamp4 - timestamp3))
+    # print(str(timestamp2-timestamp1) + " " + str(timestamp4 - timestamp3))
+    print(str(timestamp1) + " " + str(timestamp2) + " " + str(timestamp4))
     cleanUpResults()
 # print("The time of execution of above program is :", end-start)
 #print("Images were processed in: " + str(timestamp2 - timestamp1))
